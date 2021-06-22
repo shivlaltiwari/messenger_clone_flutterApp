@@ -1,7 +1,10 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:messanger/services/auth.dart';
 import 'package:messanger/services/database.dart';
+import 'package:messanger/views/chatscreen.dart';
 import 'package:messanger/views/signinScreen.dart';
 
 class Homepage extends StatefulWidget {
@@ -27,12 +30,25 @@ class _HomepageState extends State<Homepage> {
         });
   }
   Widget searchListUserTile( String profileUrl, name ,email  ){
-    return Row(
-      children: [
-         Image.network(profileUrl, height: 100,width: 200,)
-
-      ],
+    return GestureDetector(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatScreen(name: email,ChatWithUserName: name,)));
+      },
+      child: Card(
+        color: Colors.lightGreen,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+             ListTile(
+              leading: Image.network(profileUrl),
+              title: Text(name, style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),),
+              subtitle: Text(email),
+            )
+          ],
+        ),
+      ),
     );
+    
   }
 
   Widget searchUserList() {
