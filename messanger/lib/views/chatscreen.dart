@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:messanger/HelperFunction/shared_preference.dart';
+import 'package:messanger/services/database.dart';
 import 'package:random_string/random_string.dart';
+//import 'package:random_string/random_string.dart';
 class ChatScreen extends StatefulWidget {
   final String ChatWithUserName, name;
   ChatScreen({ required this.ChatWithUserName, required this.name});
@@ -46,8 +48,19 @@ class _ChatScreenState extends State<ChatScreen> {
       // ignore: unnecessary_null_comparison
       if(messageId == null){
         messageId = randomAlphaNumeric(12);
-
       }
+      DatabaseMethod().addMessage(ChatRoomId, messageId, messageInfoMap).then((value){
+        Map<String, dynamic> lastMessageInfo = {
+          "lastmessage":message,
+          "lastMessageSendTs":lastMessageTs,
+          "lastMessageSendBy":Myusername
+        };
+        DatabaseMethod().updateLastMessageSent(ChatRoomId, lastMessageInfo);
+        if(sendClicked){
+          messagesTextController.text = "";
+          messageId = "";
+        }
+      });
 
     }
 

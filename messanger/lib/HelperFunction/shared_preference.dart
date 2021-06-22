@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class sharedPreferenceHelper{
   static String userIdKey = "USERKEY";
   static String userNameKey = "USERName";
-  static String userDisplayName = "USERDispalyName";
+  static String userDisplayNameKey = "USERDispalyName";
   static String userEmailKey = "USEREmailKey";
   static String userProfileKey = "USERProfleKey";
 //save user Data
@@ -18,15 +18,15 @@ class sharedPreferenceHelper{
   }
   Future<bool> saveUserId(String getUserId) async{
     SharedPreferences pref =await SharedPreferences.getInstance();
-    return pref.setString(userNameKey, getUserId);
+    return pref.setString(userIdKey, getUserId);
   }
   Future<bool> saveDisplayName(String getDisplayName) async{
     SharedPreferences pref =await SharedPreferences.getInstance();
-    return pref.setString(userNameKey, getDisplayName);
+    return pref.setString(userDisplayNameKey, getDisplayName);
   }
   Future<bool> saveUserProfile(String getUserProfile) async{
     SharedPreferences pref =await SharedPreferences.getInstance();
-    return pref.setString(userNameKey, getUserProfile);
+    return pref.setString(userProfileKey, getUserProfile);
   }
 //get data
   Future<String?> getUserName() async{
@@ -43,7 +43,7 @@ class sharedPreferenceHelper{
   }
   Future<String?> getDisplayName() async{
     SharedPreferences pref =await SharedPreferences.getInstance();
-    return pref.getString(userDisplayName);
+    return pref.getString(userDisplayNameKey);
   }
   Future<String?> getUserPrifile() async{
     SharedPreferences pref =await SharedPreferences.getInstance();

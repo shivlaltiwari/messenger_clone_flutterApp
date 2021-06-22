@@ -1,7 +1,6 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:messanger/HelperFunction/shared_preference.dart';
 import 'package:messanger/services/auth.dart';
 import 'package:messanger/services/database.dart';
 import 'package:messanger/views/chatscreen.dart';
@@ -18,56 +17,96 @@ class _HomepageState extends State<Homepage> {
   bool isSearching = false;
   TextEditingController searchEditingController = TextEditingController();
   Stream? userStrem;
+  late String myProfilePic, Myusername, Myname, MyEmail;
+  getMyInfoFromSharedPreferences()async{
+    Myname =  (await sharedPreferenceHelper().getDisplayName())! ;
+    myProfilePic = (await sharedPreferenceHelper().getUserPrifile())!;
+    Myusername = (await sharedPreferenceHelper().getUserName())!;
+    MyEmail = (await sharedPreferenceHelper().getUserEmail())!;
+  }
+  getChatRoomIdByUserName( String a, String b){
+    if(a.substring(0,1).codeUnitAt(0)> b.substring(0,1).codeUnitAt(0)){
+      return "$b\_$a";
+    } else{
+      return "$a\_$b";
+    }
+  }
+
   onSearchbtnClick() async {
     isSearching = true;
     setState(() {
       // isSearching = true;
     });
-     userStrem = await DatabaseMethod()
+    userStrem = await DatabaseMethod()
         .getUserByUserName(searchEditingController.text.trim());
-        setState(() {
-          
-        });
+    setState(() {});
   }
-  Widget searchListUserTile( String profileUrl, name ,email  ){
+
+  Widget searchListUserTile(String profileUrl, name, email) {
     return GestureDetector(
-      onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatScreen(name: email,ChatWithUserName: name,)));
+      onTap: () {
+        var ChatRoomId = getChatRoomIdByUserName(Myusername=
+        'shiva', name);
+        print("the name is $Myusername and $name");
+        Map<String , dynamic> chatRoomInfoMap ={
+          "user":[Myusername, name],
+        };
+        DatabaseMethod().createChatRoom(ChatRoomId, chatRoomInfoMap);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ChatScreen(
+                      name: email,
+                      ChatWithUserName: name,
+                    )));
       },
       child: Card(
         color: Colors.lightGreen,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-             ListTile(
+            ListTile(
               leading: Image.network(profileUrl),
-              title: Text(name, style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),),
+              title: Text(
+                name,
+                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+              ),
               subtitle: Text(email),
             )
           ],
         ),
       ),
     );
-    
   }
 
   Widget searchUserList() {
     print("object");
     return StreamBuilder<QuerySnapshot>(
-      
-        stream:FirebaseFirestore.instance.collection("user")
-        .where("name",isEqualTo: searchEditingController.text.trim()).snapshots() ,
+        stream: FirebaseFirestore.instance
+            .collection("user")
+            .where("name", isEqualTo: searchEditingController.text.trim())
+            .snapshots(),
         builder: (context, snapshot) {
-          return snapshot.hasData ?
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) {
-              DocumentSnapshot ds = snapshot.data!.docs[index];
-              return searchListUserTile(ds['imgUrl'], ds['name'], ds['email']) ;
-            },
-          ): Center(child: CircularProgressIndicator(),);
+          return snapshot.hasData
+              ? ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    DocumentSnapshot ds = snapshot.data!.docs[index];
+                    return searchListUserTile(
+                        ds['imgUrl'], ds['name'], ds['email']);
+                  },
+                )
+              : Center(
+                  child: CircularProgressIndicator(),
+                );
         });
+  }
+  @override
+  void initState() {
+   
+    super.initState();
+   getMyInfoFromSharedPreferences();
   }
 
   @override
@@ -141,7 +180,7 @@ class _HomepageState extends State<Homepage> {
                                     // ignore: unnecessary_null_comparison
                                     if (searchEditingController != null) {
                                       onSearchbtnClick();
-                                     //searchUserList();
+                                      //searchUserList();
                                     }
                                   },
                                   child: Icon(Icons.search_rounded)),
